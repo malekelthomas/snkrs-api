@@ -12,6 +12,7 @@ message Sneaker {
     string sku = 4;
     google.protobuf.Timestamp release_date = 5;
     repeated SiteSoldOn sites = 6;
+    repeated string photos = 7;
 
     enum SiteSoldOn {
         STOCKX = 0;
