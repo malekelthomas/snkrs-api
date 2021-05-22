@@ -35,17 +35,19 @@ func (s SneakerAPI) GetAllSneakers() func(http.ResponseWriter, *http.Request) {
 
 func (s SneakerAPI) GetSneaker() func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		//get all path params from url
 		params := mux.Vars(r)
 		model := params["sneaker"]
 		sneaker, err := s.sneakerService.GetSneakerByModel(context.TODO(), model)
 		if err != nil {
 			json.NewEncoder(w).Encode("No sneakers found")
 		}
-		json.NewEncoder(w).Encode(sneaker)
+		json.NewEncoder(w).Encode(sneaker) //sync.Mutex from protobuf, Encode copies lock value
 	}
 }
 
-type CreateSneakerRequest struct {
+//createSneakerRequest contains fields when receiving a request to create a sneaker
+type createSneakerRequest struct {
 	Price  int64    `json:"price"`
 	Brand  string   `json:"brand"`
 	Model  string   `json:"model"`
@@ -56,7 +58,7 @@ type CreateSneakerRequest struct {
 
 func (s SneakerAPI) CreateSneaker() func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req CreateSneakerRequest
+		var req createSneakerRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			json.NewEncoder(w).Encode(fmt.Sprintf("Could not parse err: %v", err))
 		}
