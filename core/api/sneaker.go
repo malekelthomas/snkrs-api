@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+//SneakerAPI handles http requests that require the sneaker service
 type SneakerAPI struct {
 	sneakerService *service.SneakerService
 }
@@ -20,7 +21,9 @@ func NewSneakerAPI(sneakerService service.SneakerService) *SneakerAPI {
 	}
 }
 
-func (s SneakerAPI) GetAllSneakers() func(w http.ResponseWriter, r *http.Request) {
+//return a closure so gorilla mux will pass in args to func returned
+
+func (s SneakerAPI) GetAllSneakers() func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		sneakers, err := s.sneakerService.GetAllSneakers(context.TODO())
 		if err != nil {
@@ -30,7 +33,7 @@ func (s SneakerAPI) GetAllSneakers() func(w http.ResponseWriter, r *http.Request
 	}
 }
 
-func (s SneakerAPI) GetSneaker() func(w http.ResponseWriter, r *http.Request) {
+func (s SneakerAPI) GetSneaker() func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		params := mux.Vars(r)
 		model := params["sneaker"]
@@ -51,7 +54,7 @@ type CreateSneakerRequest struct {
 	Photos []string `json:"photos"`
 }
 
-func (s SneakerAPI) CreateSneaker() func(w http.ResponseWriter, r *http.Request) {
+func (s SneakerAPI) CreateSneaker() func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req CreateSneakerRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
