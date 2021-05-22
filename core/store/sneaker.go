@@ -1,14 +1,19 @@
 package store
 
 import (
+	"context"
+	"log"
 	"main/models"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type SneakerStore struct {
-	DB *sqlx.DB
+	DB    *sqlx.DB
+	mongo *mongo.Collection
 }
 
 type sneaker struct {
@@ -19,21 +24,114 @@ type sneaker struct {
 	sites pq.StringArray `db:"sites"`
 }
 
-func (s SneakerStore) GetAllSneakers() ([]models.Sneaker, error) {
+func NewSneakerStore(conn *DatabaseConnection) *SneakerStore {
+	if conn != nil && conn.Connection != "" {
+		db, err := sqlx.Connect("postgres", conn.Connection)
+		if err != nil {
+			log.Println("unable to establish connection", err)
+			return nil
+		}
+		return &SneakerStore{
+			DB: db,
+		}
+	} else {
+		if conn == nil || conn.MongoDB == nil {
+			return nil
+		}
 
-	//get values from db scan into store sneaker type
-	var sneakers []sneaker
-	if err := s.DB.Select(&sneakers, `SELECT * FROM sneakers`); err != nil {
-		return nil, err
+		return &SneakerStore{
+			mongo: conn.MongoDB.Collection("sneakers"),
+		}
 	}
 
-	//convert and return array of model type
-	var converted []models.Sneaker
-	for _, s := range sneakers {
-		converted = append(converted, s.ToSneaker())
+}
+
+func (s SneakerStore) CreateSneaker(ctx context.Context, model, brand, sku string, sites, photos []string, price int64) (*models.Sneaker, error) {
+	var mappedSites []models.Sneaker_SiteSoldOn
+	for _, site := range sites {
+		val := models.Sneaker_SiteSoldOn_value[site]
+		mappedSites = append(mappedSites, models.Sneaker_SiteSoldOn(val))
 	}
 
-	return converted, nil
+	sneaker := models.Sneaker{
+		Price:  price,
+		Brand:  brand,
+		Model:  model,
+		Sku:    sku,
+		Sites:  mappedSites,
+		Photos: photos,
+	}
+
+	if s.DB != nil {
+		//
+	}
+	if s.mongo != nil {
+		if _, err := upsert(ctx, s.mongo, bson.D{{"sku", sneaker.Sku}}, sneaker); err != nil {
+			return nil, err
+		}
+	}
+	return &sneaker, nil
+}
+
+func (s SneakerStore) GetAllSneakers(ctx context.Context) ([]models.Sneaker, error) {
+
+	if s.DB != nil {
+		//get values from db scan into store sneaker type
+		var sneakers []sneaker
+		if err := s.DB.Select(&sneakers, `SELECT * FROM sneakers`); err != nil {
+			return nil, err
+		}
+
+		//convert and return array of model type
+		var converted []models.Sneaker
+		for _, s := range sneakers {
+			converted = append(converted, s.ToSneaker())
+		}
+
+		return converted, nil
+	} else {
+
+		var sneakers []models.Sneaker
+		cur, err := s.mongo.Find(ctx, bson.D{{}})
+		if err != nil {
+			return nil, err
+		}
+		defer cur.Close(ctx)
+
+		for cur.Next(ctx) {
+			var sneaker models.Sneaker
+			if err := cur.Decode(&sneaker); err != nil {
+				return nil, err
+			}
+			sneakers = append(sneakers, sneaker)
+		}
+
+		if err := cur.Err(); err != nil {
+			return nil, err
+		}
+
+		return sneakers, nil
+	}
+
+}
+
+func (s SneakerStore) GetSneakerByModel(ctx context.Context, model string) (models.Sneaker, error) {
+	var sneaker sneaker
+	if s.DB != nil {
+		if err := s.DB.Get(&sneaker, `SELECT * FROM sneakers WHERE model=$1`, model); err != nil {
+			return models.Sneaker{}, err
+		}
+		return sneaker.ToSneaker(), nil
+	} else {
+
+		var result models.Sneaker
+		if err := s.mongo.FindOne(ctx, bson.D{{"model", model}}).Decode(&result); err != nil {
+			return models.Sneaker{}, err
+		}
+
+		return result, nil
+
+	}
 
 }
 
