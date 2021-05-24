@@ -53,7 +53,8 @@ type createSneakerRequest struct {
 	Model         string               `json:"model"`
 	Sku           string               `json:"sku"`
 	Photos        []string             `json:"photos"`
-	SiteSizePrice models.SiteSizePrice `json:"site_size_price`
+	SiteSizePrice models.SiteSizePrice `json:"site_size_price"`
+	ReleaseDate   string               `json:"release_date"`
 }
 
 func (s SneakerAPI) CreateSneaker() func(http.ResponseWriter, *http.Request) {
@@ -62,7 +63,7 @@ func (s SneakerAPI) CreateSneaker() func(http.ResponseWriter, *http.Request) {
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			json.NewEncoder(w).Encode(fmt.Sprintf("Could not parse err: %v", err))
 		}
-		sneaker, err := s.sneakerService.CreateSneaker(context.TODO(), req.Model, req.Brand, req.Sku, req.Photos, req.SiteSizePrice)
+		sneaker, err := s.sneakerService.CreateSneaker(context.TODO(), req.Model, req.Brand, req.Sku, req.Photos, req.SiteSizePrice, req.ReleaseDate)
 		if err != nil {
 			json.NewEncoder(w).Encode(fmt.Sprintf("Unable to create err: %v", err))
 		}
