@@ -46,12 +46,14 @@ func NewSneakerStore(conn *DatabaseConnection) *SneakerStore {
 
 }
 
-func (s SneakerStore) CreateSneaker(ctx context.Context, model, brand, sku string, photos []string, siteSizePrice models.SiteSizePrice) (*models.Sneaker, error) {
+func (s SneakerStore) CreateSneaker(ctx context.Context, model, brand, sku string, photos []string, siteSizePrice models.SiteSizePrice, releaseDate string) (*models.Sneaker, error) {
 
 	sneaker := models.Sneaker{
 		Brand:            brand,
 		Model:            model,
 		Sku:              sku,
+		Photos:           photos,
+		ReleaseDate:      releaseDate,
 		SitesSizesPrices: &siteSizePrice,
 	}
 
