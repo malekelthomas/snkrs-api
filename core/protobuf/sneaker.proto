@@ -13,13 +13,19 @@ message Sneaker {
     google.protobuf.Timestamp release_date = 5;
     repeated SiteSoldOn sites = 6;
     repeated string photos = 7;
+    
+    map<string, SizePrice> site_sizes_prices = 8;
+}
 
-    enum SiteSoldOn {
-        STOCKX = 0;
-        NIKE = 1;
-        ADIDAS = 2;
-        PUMA = 3;
-        STADIUMGOODS = 4;
-        FLIGHTCLUB = 5;
-    }
+message SizePrice {
+    map<string, int64> size_price = 9;
+}
+
+enum SiteSoldOn {
+    STOCKX = 0;
+    NIKE = 1;
+    ADIDAS = 2;
+    PUMA = 3;
+    STADIUMGOODS = 4;
+    FLIGHTCLUB = 5;
 }
