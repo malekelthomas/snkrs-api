@@ -12,7 +12,10 @@ message Sneaker {
     google.protobuf.Timestamp release_date = 5;
     repeated string photos = 7;
     
-    map<string, SizePrice> site_sizes_prices = 8;
+}
+
+message SiteSizePrice {
+    map<string, SizePrice> site_sizes_prices = 1;
 }
 
 message SizePrice {
