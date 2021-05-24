@@ -47,10 +47,10 @@ func NewSneakerStore(conn *DatabaseConnection) *SneakerStore {
 }
 
 func (s SneakerStore) CreateSneaker(ctx context.Context, model, brand, sku string, sites, photos []string, price int64) (*models.Sneaker, error) {
-	var mappedSites []models.Sneaker_SiteSoldOn
+	var mappedSites []models.SiteSoldOn
 	for _, site := range sites {
-		val := models.Sneaker_SiteSoldOn_value[site]
-		mappedSites = append(mappedSites, models.Sneaker_SiteSoldOn(val))
+		val := models.SiteSoldOn_value[site]
+		mappedSites = append(mappedSites, models.SiteSoldOn(val))
 	}
 
 	sneaker := models.Sneaker{
@@ -138,10 +138,10 @@ func (s SneakerStore) GetSneakerByModel(ctx context.Context, model string) (mode
 func (s sneaker) ToSneaker() models.Sneaker {
 
 	//convert values returned from db to site_sold_on type so it's methods can be used
-	var sites []models.Sneaker_SiteSoldOn
+	var sites []models.SiteSoldOn
 	for _, site := range s.sites {
-		val := models.Sneaker_SiteSoldOn_value[site]
-		sites = append(sites, models.Sneaker_SiteSoldOn(val))
+		val := models.SiteSoldOn_value[site]
+		sites = append(sites, models.SiteSoldOn(val))
 	}
 	return models.Sneaker{
 		Price: s.price,
