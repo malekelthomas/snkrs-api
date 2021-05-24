@@ -1,15 +1,13 @@
 syntax = "proto3";
 package protobuf;
 
-import "google/protobuf/timestamp.proto";
-
 option go_package = "api/models";
 
 message Sneaker {
     string brand = 2;
     string model = 3;
     string sku = 4;
-    google.protobuf.Timestamp release_date = 5;
+    string release_date = 5;
     repeated string photos = 7;
     SiteSizePrice sites_sizes_prices = 8;
     
