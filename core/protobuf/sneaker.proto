@@ -11,15 +11,16 @@ message Sneaker {
     string sku = 4;
     google.protobuf.Timestamp release_date = 5;
     repeated string photos = 7;
+    SiteSizePrice sites_sizes_prices = 8;
     
 }
 
 message SiteSizePrice {
-    map<string, SizePrice> site_sizes_prices = 1;
+    map<string, SizePrice> sites_sizes_prices = 1;
 }
 
 message SizePrice {
-    map<string, int64> size_price = 1;
+    map<string, int64> sizes_prices = 1;
 }
 
 enum SiteSoldOn {

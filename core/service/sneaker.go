@@ -24,6 +24,6 @@ func (s SneakerService) GetSneakerByModel(ctx context.Context, model string) (mo
 	return s.sneakerStore.GetSneakerByModel(ctx, model)
 }
 
-func (s SneakerService) CreateSneaker(ctx context.Context, model, brand, sku string, sites, photos []string, price int64) (*models.Sneaker, error) {
-	return s.sneakerStore.CreateSneaker(ctx, model, brand, sku, sites, photos, price)
+func (s SneakerService) CreateSneaker(ctx context.Context, model, brand, sku string, photos []string, siteSizePrice models.SiteSizePrice) (*models.Sneaker, error) {
+	return s.sneakerStore.CreateSneaker(ctx, model, brand, sku, photos, siteSizePrice)
 }
