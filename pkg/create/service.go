@@ -2,13 +2,13 @@ package create
 
 import "context"
 
-//Service provides sneaker retrieval operations
+//Service provides sneaker creation operations
 type Service interface {
 	//CreateSneaker defines a model with type sneaker to be stored in repository
 	CreateSneaker(ctx context.Context, model, brand, sku string, photos []string, siteSizePrice SiteSizePrice, releaseDate string) (*Sneaker, error)
 }
 
-//Repository provides sneaker retrieval operations from storage
+//Repository provides sneaker creation operations with a particular db
 type Repository interface {
 	//CreateSneaker stores sneaker in repository
 	CreateSneaker(ctx context.Context, sneaker Sneaker) (*Sneaker, error)
