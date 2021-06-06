@@ -9,6 +9,7 @@ import (
 	"snkrs/pkg/create"
 	"snkrs/pkg/get"
 	"snkrs/pkg/http/rest"
+	"snkrs/postgres"
 )
 
 func main() {
@@ -25,6 +26,14 @@ func main() {
 	switch storageType {
 	case "0":
 		s, err := mongo.NewMongoStore(os.Getenv("MONGO_CONN"))
+		if err != nil {
+			panic(err)
+		}
+
+		getService = get.NewService(s)
+		createService = create.NewService(s)
+	case "1":
+		s, err := postgres.NewPostgresStore(os.Getenv("POSTGRES_CONN"))
 		if err != nil {
 			panic(err)
 		}

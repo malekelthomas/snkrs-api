@@ -1,4 +1,4 @@
-package store
+package postgres
 
 import (
 	"context"
@@ -61,6 +61,15 @@ func (s *Store) GetAllSneakers(ctx context.Context) ([]get.Sneaker, error) {
 
 	return converted, nil
 
+}
+
+func (s *Store) GetSneakerBySKU(ctx context.Context, sku string) (get.Sneaker, error) {
+	var sneaker sneaker
+
+	if err := s.DB.Get(&sneaker, `SELECT * FROM sneakers WHERE sku=$1`, sku); err != nil {
+		return get.Sneaker{}, err
+	}
+	return sneaker.ToSneaker(), nil
 }
 
 func (s *Store) GetSneakerByModel(ctx context.Context, model string) (get.Sneaker, error) {
