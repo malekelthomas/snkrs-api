@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -34,5 +35,6 @@ func main() {
 	}
 
 	router := rest.Handler(rest.Services{Get: getService, Create: createService})
-	log.Fatal(http.ListenAndServe(":8080", router))
+	fmt.Println("listening on port 7000")
+	log.Fatal(http.ListenAndServe(":7000", router))
 }
