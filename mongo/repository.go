@@ -113,6 +113,22 @@ func (s *Store) GetAllSneakers(ctx context.Context) ([]get.Sneaker, error) {
 
 }
 
+func (s *Store) GetAllBrands(ctx context.Context) ([]string, error) {
+	var brands []interface{}
+	var err error
+	brands, err = s.getCollection("sneakers").Distinct(ctx, "brand", bson.D{})
+	if err != nil {
+		return nil, err
+	}
+
+	var brandsStr []string
+	for i := range brands {
+		brand := brands[i]
+		brandsStr = append(brandsStr, fmt.Sprintf("%v", brand))
+	}
+	return brandsStr, nil
+}
+
 func upsert(ctx context.Context, collection *mongo.Collection, filter bson.D, item interface{}) (bool, error) {
 	upsert := true
 	result, err := collection.ReplaceOne(ctx, filter, item, &options.ReplaceOptions{

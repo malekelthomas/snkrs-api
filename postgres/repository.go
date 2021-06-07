@@ -63,6 +63,17 @@ func (s *Store) GetAllSneakers(ctx context.Context) ([]get.Sneaker, error) {
 
 }
 
+func (s *Store) GetAllBrands(ctx context.Context) ([]string, error) {
+	//get values from db scan into store sneaker type
+	var brands []string
+	if err := s.DB.Select(&brands, `SELECT name FROM brands`); err != nil {
+		return nil, err
+	}
+
+	return brands, nil
+
+}
+
 func (s *Store) GetSneakersByBrand(ctx context.Context, brand string) ([]get.Sneaker, error) {
 	//get values from db scan into store sneaker type
 	var sneakers []sneaker

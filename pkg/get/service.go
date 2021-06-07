@@ -12,6 +12,8 @@ type Service interface {
 	GetSneakersByBrand(ctx context.Context, brand string) ([]Sneaker, error)
 	//GetAllSneakers returns all sneakers
 	GetAllSneakers(ctx context.Context) ([]Sneaker, error)
+	//GetBrands returns all brands
+	GetAllBrands(ctx context.Context) ([]string, error)
 }
 
 //Repository provides sneaker retrieval operations from storage
@@ -24,6 +26,8 @@ type Repository interface {
 	GetSneakersByBrand(ctx context.Context, brand string) ([]Sneaker, error)
 	//GetAllSneakers returns all sneakers
 	GetAllSneakers(ctx context.Context) ([]Sneaker, error)
+	//GetBrands returns all brands
+	GetAllBrands(ctx context.Context) ([]string, error)
 }
 
 type service struct {
@@ -47,4 +51,7 @@ func (s service) GetSneakersByBrand(ctx context.Context, brand string) ([]Sneake
 
 func (s service) GetAllSneakers(ctx context.Context) ([]Sneaker, error) {
 	return s.r.GetAllSneakers(ctx)
+}
+func (s service) GetAllBrands(ctx context.Context) ([]string, error) {
+	return s.r.GetAllBrands(ctx)
 }
