@@ -63,6 +63,23 @@ func (s *Store) GetAllSneakers(ctx context.Context) ([]get.Sneaker, error) {
 
 }
 
+func (s *Store) GetSneakersByBrand(ctx context.Context, brand string) ([]get.Sneaker, error) {
+	//get values from db scan into store sneaker type
+	var sneakers []sneaker
+	if err := s.DB.Select(&sneakers, `SELECT * FROM sneakers WHERE brand=$1`, brand); err != nil {
+		return nil, err
+	}
+
+	//convert and return array of model type
+	var converted []get.Sneaker
+	for _, s := range sneakers {
+		converted = append(converted, s.ToSneaker())
+	}
+
+	return converted, nil
+
+}
+
 func (s *Store) GetSneakerBySKU(ctx context.Context, sku string) (get.Sneaker, error) {
 	var sneaker sneaker
 

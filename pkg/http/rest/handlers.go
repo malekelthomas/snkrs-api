@@ -19,7 +19,8 @@ func Handler(s Services) *mux.Router {
 	//register routes and handler funcs
 	r.HandleFunc("/sneakers/", getAllSneakers(s.Get)).Methods("GET")
 	r.HandleFunc("/sneakers/", createSneaker(s.Create)).Methods("POST")
-	r.HandleFunc("/sneakers/{sneaker}/", getSneaker(s.Get)).Methods("GET")
+	r.HandleFunc("/sneakers/{model}/", getSneakerByModel(s.Get)).Methods("GET")
+	r.HandleFunc("/sneakers/{brand}/", getSneakersByBrand(s.Get)).Methods("GET")
 	http.Handle("/", r)
 
 	return r
@@ -60,12 +61,24 @@ func getAllSneakers(g get.Service) func(http.ResponseWriter, *http.Request) {
 	}
 }
 
-func getSneaker(g get.Service) func(http.ResponseWriter, *http.Request) {
+func getSneakersByBrand(g get.Service) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		params := mux.Vars(r)
+		brand := params["brand"]
+		sneakers, err := g.GetSneakersByBrand(context.TODO(), brand)
+		if err != nil {
+			json.NewEncoder(w).Encode("No sneakers found")
+		}
+		json.NewEncoder(w).Encode(sneakers)
+	}
+}
+
+func getSneakerByModel(g get.Service) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		//get all path params from url
 		params := mux.Vars(r)
-		model := params["sneaker"]
-		sneaker, err := g.GetSneakerBySKU(context.TODO(), model)
+		model := params["model"]
+		sneaker, err := g.GetSneakerByModel(context.TODO(), model)
 		if err != nil {
 			json.NewEncoder(w).Encode("No sneakers found")
 		}

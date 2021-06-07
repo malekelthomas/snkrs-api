@@ -63,6 +63,31 @@ func (s *Store) GetSneakerBySKU(ctx context.Context, sku string) (get.Sneaker, e
 
 }
 
+func (s *Store) GetSneakersByBrand(ctx context.Context, brand string) ([]get.Sneaker, error) {
+
+	var sneakers []get.Sneaker
+	cur, err := s.getCollection("sneakers").Find(ctx, bson.D{{"brand", brand}})
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(ctx)
+
+	for cur.Next(ctx) {
+		var sneaker get.Sneaker
+		if err := cur.Decode(&sneaker); err != nil {
+			return nil, err
+		}
+		sneakers = append(sneakers, sneaker)
+	}
+
+	if err := cur.Err(); err != nil {
+		return nil, err
+	}
+
+	return sneakers, nil
+
+}
+
 func (s *Store) GetAllSneakers(ctx context.Context) ([]get.Sneaker, error) {
 
 	var sneakers []get.Sneaker

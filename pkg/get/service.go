@@ -8,6 +8,8 @@ type Service interface {
 	GetSneakerBySKU(ctx context.Context, sku string) (Sneaker, error)
 	//GetSneakerByModel returns sneaker with given model name
 	GetSneakerByModel(ctx context.Context, model string) (Sneaker, error)
+	//GetSneakerByBrand returns sneakers with given brand
+	GetSneakersByBrand(ctx context.Context, brand string) ([]Sneaker, error)
 	//GetAllSneakers returns all sneakers
 	GetAllSneakers(ctx context.Context) ([]Sneaker, error)
 }
@@ -18,6 +20,8 @@ type Repository interface {
 	GetSneakerBySKU(ctx context.Context, sku string) (Sneaker, error)
 	//GetSneakerByModel returns sneaker with given model name
 	GetSneakerByModel(ctx context.Context, model string) (Sneaker, error)
+	//GetSneakerByBrand returns sneakers with given brand
+	GetSneakersByBrand(ctx context.Context, brand string) ([]Sneaker, error)
 	//GetAllSneakers returns all sneakers
 	GetAllSneakers(ctx context.Context) ([]Sneaker, error)
 }
@@ -36,6 +40,9 @@ func (s service) GetSneakerBySKU(ctx context.Context, sku string) (Sneaker, erro
 
 func (s service) GetSneakerByModel(ctx context.Context, model string) (Sneaker, error) {
 	return s.r.GetSneakerByModel(ctx, model)
+}
+func (s service) GetSneakersByBrand(ctx context.Context, brand string) ([]Sneaker, error) {
+	return s.r.GetSneakersByBrand(ctx, brand)
 }
 
 func (s service) GetAllSneakers(ctx context.Context) ([]Sneaker, error) {
