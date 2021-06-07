@@ -19,8 +19,9 @@ func Handler(s Services) *mux.Router {
 	//register routes and handler funcs
 	r.HandleFunc("/sneakers/", getAllSneakers(s.Get)).Methods("GET")
 	r.HandleFunc("/sneakers/", createSneaker(s.Create)).Methods("POST")
+	r.HandleFunc("/sneakers/brands/{brand}/", getSneakersByBrand(s.Get)).Methods("GET")
+	r.HandleFunc("/sneakers/brands/", getAllBrands(s.Get)).Methods("GET")
 	r.HandleFunc("/sneakers/{model}/", getSneakerByModel(s.Get)).Methods("GET")
-	r.HandleFunc("/sneakers/{brand}/", getSneakersByBrand(s.Get)).Methods("GET")
 	http.Handle("/", r)
 
 	return r
@@ -53,9 +54,20 @@ func createSneaker(c create.Service) func(http.ResponseWriter, *http.Request) {
 
 func getAllSneakers(g get.Service) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		log.Println(r)
 		sneakers, err := g.GetAllSneakers(context.TODO())
 		if err != nil {
 			json.NewEncoder(w).Encode("No sneakers found")
+		}
+		json.NewEncoder(w).Encode(sneakers)
+	}
+}
+func getAllBrands(g get.Service) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		log.Println(r)
+		sneakers, err := g.GetAllBrands(context.TODO())
+		if err != nil {
+			json.NewEncoder(w).Encode("No brands found")
 		}
 		json.NewEncoder(w).Encode(sneakers)
 	}
