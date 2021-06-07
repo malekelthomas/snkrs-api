@@ -25,7 +25,7 @@ func NewMongoStore(conn string) (*Store, error) {
 	clientOps.ApplyURI(conn)
 	client, err := mongo.Connect(ctx, &clientOps)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("unable to establish connection:", err))
+		return nil, fmt.Errorf("unable to establish connection: %v", err)
 	}
 	return &Store{db: client.Database(os.Getenv("MONGODB_NAME"))}, nil
 }
@@ -35,8 +35,10 @@ func (s *Store) getCollection(collection string) *mongo.Collection {
 }
 
 func (s *Store) CreateSneaker(ctx context.Context, sneaker create.Sneaker) (*create.Sneaker, error) {
-	if _, err := upsert(ctx, s.getCollection("sneakers"), bson.D{{"sku", sneaker.Sku}}, sneaker); err != nil {
+	if inserted, err := upsert(ctx, s.getCollection("sneakers"), bson.D{{"sku", sneaker.Sku}}, sneaker); err != nil {
 		return nil, err
+	} else if !inserted {
+		return nil, errors.New("sneaker was not inserted")
 	}
 	return &sneaker, nil
 }
