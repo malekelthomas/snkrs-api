@@ -7,8 +7,7 @@ import (
 
 	"errors"
 
-	"snkrs/pkg/create"
-	"snkrs/pkg/get"
+	"snkrs/pkg/domain"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -34,7 +33,7 @@ func (s *Store) getCollection(collection string) *mongo.Collection {
 	return s.db.Collection(collection)
 }
 
-func (s *Store) CreateSneaker(ctx context.Context, sneaker create.Sneaker) (*create.Sneaker, error) {
+func (s *Store) CreateSneaker(ctx context.Context, sneaker domain.Sneaker) (*domain.Sneaker, error) {
 	if inserted, err := upsert(ctx, s.getCollection("sneakers"), bson.D{{"sku", sneaker.Sku}}, sneaker); err != nil {
 		return nil, err
 	} else if !inserted {
@@ -43,29 +42,29 @@ func (s *Store) CreateSneaker(ctx context.Context, sneaker create.Sneaker) (*cre
 	return &sneaker, nil
 }
 
-func (s *Store) GetSneakerByModel(ctx context.Context, model string) (get.Sneaker, error) {
+func (s *Store) GetSneakerByModel(ctx context.Context, model string) (domain.Sneaker, error) {
 
-	var result get.Sneaker
+	var result domain.Sneaker
 	if err := s.getCollection("sneakers").FindOne(ctx, bson.D{{"model", model}}).Decode(&result); err != nil {
-		return get.Sneaker{}, err
+		return domain.Sneaker{}, err
 	}
 	return result, nil
 
 }
-func (s *Store) GetSneakerBySKU(ctx context.Context, sku string) (get.Sneaker, error) {
+func (s *Store) GetSneakerBySKU(ctx context.Context, sku string) (domain.Sneaker, error) {
 
-	var result get.Sneaker
+	var result domain.Sneaker
 	if err := s.getCollection("sneakers").FindOne(ctx, bson.D{{"sku", sku}}).Decode(&result); err != nil {
-		return get.Sneaker{}, err
+		return domain.Sneaker{}, err
 	}
 
 	return result, nil
 
 }
 
-func (s *Store) GetSneakersByBrand(ctx context.Context, brand string) ([]get.Sneaker, error) {
+func (s *Store) GetSneakersByBrand(ctx context.Context, brand string) ([]domain.Sneaker, error) {
 
-	var sneakers []get.Sneaker
+	var sneakers []domain.Sneaker
 	cur, err := s.getCollection("sneakers").Find(ctx, bson.D{{"brand", brand}})
 	if err != nil {
 		return nil, err
@@ -73,7 +72,7 @@ func (s *Store) GetSneakersByBrand(ctx context.Context, brand string) ([]get.Sne
 	defer cur.Close(ctx)
 
 	for cur.Next(ctx) {
-		var sneaker get.Sneaker
+		var sneaker domain.Sneaker
 		if err := cur.Decode(&sneaker); err != nil {
 			return nil, err
 		}
@@ -88,9 +87,9 @@ func (s *Store) GetSneakersByBrand(ctx context.Context, brand string) ([]get.Sne
 
 }
 
-func (s *Store) GetAllSneakers(ctx context.Context) ([]get.Sneaker, error) {
+func (s *Store) GetAllSneakers(ctx context.Context) ([]domain.Sneaker, error) {
 
-	var sneakers []get.Sneaker
+	var sneakers []domain.Sneaker
 	cur, err := s.getCollection("sneakers").Find(ctx, bson.D{{}})
 	if err != nil {
 		return nil, err
@@ -98,7 +97,7 @@ func (s *Store) GetAllSneakers(ctx context.Context) ([]get.Sneaker, error) {
 	defer cur.Close(ctx)
 
 	for cur.Next(ctx) {
-		var sneaker get.Sneaker
+		var sneaker domain.Sneaker
 		if err := cur.Decode(&sneaker); err != nil {
 			return nil, err
 		}

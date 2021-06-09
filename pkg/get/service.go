@@ -1,31 +1,34 @@
 package get
 
-import "context"
+import (
+	"context"
+	"snkrs/pkg/domain"
+)
 
-//Service provides sneaker retrieval operations
+//Service provides domain.Sneaker retrieval operations
 type Service interface {
-	//GetSneakerBySKU returns sneaker with given sku
-	GetSneakerBySKU(ctx context.Context, sku string) (Sneaker, error)
-	//GetSneakerByModel returns sneaker with given model name
-	GetSneakerByModel(ctx context.Context, model string) (Sneaker, error)
+	//GetSneakerBySKU returns domain.Sneaker with given sku
+	GetSneakerBySKU(ctx context.Context, sku string) (domain.Sneaker, error)
+	//GetSneakerByModel returns domain.Sneaker with given model name
+	GetSneakerByModel(ctx context.Context, model string) (domain.Sneaker, error)
 	//GetSneakerByBrand returns sneakers with given brand
-	GetSneakersByBrand(ctx context.Context, brand string) ([]Sneaker, error)
+	GetSneakersByBrand(ctx context.Context, brand string) ([]domain.Sneaker, error)
 	//GetAllSneakers returns all sneakers
-	GetAllSneakers(ctx context.Context) ([]Sneaker, error)
+	GetAllSneakers(ctx context.Context) ([]domain.Sneaker, error)
 	//GetBrands returns all brands
 	GetAllBrands(ctx context.Context) ([]string, error)
 }
 
-//Repository provides sneaker retrieval operations from storage
+//Repository provides domain.Sneaker retrieval operations from storage
 type Repository interface {
-	//GetSneakerBySKU returns sneaker with given sku
-	GetSneakerBySKU(ctx context.Context, sku string) (Sneaker, error)
-	//GetSneakerByModel returns sneaker with given model name
-	GetSneakerByModel(ctx context.Context, model string) (Sneaker, error)
+	//GetSneakerBySKU returns domain.Sneaker with given sku
+	GetSneakerBySKU(ctx context.Context, sku string) (domain.Sneaker, error)
+	//GetSneakerByModel returns domain.Sneaker with given model name
+	GetSneakerByModel(ctx context.Context, model string) (domain.Sneaker, error)
 	//GetSneakerByBrand returns sneakers with given brand
-	GetSneakersByBrand(ctx context.Context, brand string) ([]Sneaker, error)
+	GetSneakersByBrand(ctx context.Context, brand string) ([]domain.Sneaker, error)
 	//GetAllSneakers returns all sneakers
-	GetAllSneakers(ctx context.Context) ([]Sneaker, error)
+	GetAllSneakers(ctx context.Context) ([]domain.Sneaker, error)
 	//GetBrands returns all brands
 	GetAllBrands(ctx context.Context) ([]string, error)
 }
@@ -38,18 +41,18 @@ func NewService(r Repository) Service {
 	return &service{r}
 }
 
-func (s service) GetSneakerBySKU(ctx context.Context, sku string) (Sneaker, error) {
+func (s service) GetSneakerBySKU(ctx context.Context, sku string) (domain.Sneaker, error) {
 	return s.r.GetSneakerBySKU(ctx, sku)
 }
 
-func (s service) GetSneakerByModel(ctx context.Context, model string) (Sneaker, error) {
+func (s service) GetSneakerByModel(ctx context.Context, model string) (domain.Sneaker, error) {
 	return s.r.GetSneakerByModel(ctx, model)
 }
-func (s service) GetSneakersByBrand(ctx context.Context, brand string) ([]Sneaker, error) {
+func (s service) GetSneakersByBrand(ctx context.Context, brand string) ([]domain.Sneaker, error) {
 	return s.r.GetSneakersByBrand(ctx, brand)
 }
 
-func (s service) GetAllSneakers(ctx context.Context) ([]Sneaker, error) {
+func (s service) GetAllSneakers(ctx context.Context) ([]domain.Sneaker, error) {
 	return s.r.GetAllSneakers(ctx)
 }
 func (s service) GetAllBrands(ctx context.Context) ([]string, error) {

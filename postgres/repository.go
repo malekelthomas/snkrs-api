@@ -4,9 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
-
-	"snkrs/pkg/create"
-	"snkrs/pkg/get"
+	"snkrs/pkg/domain"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
@@ -37,7 +35,7 @@ func NewPostgresStore(conn string) (*Store, error) {
 
 }
 
-func (s *Store) CreateSneaker(ctx context.Context, sneaker create.Sneaker) (*create.Sneaker, error) {
+func (s *Store) CreateSneaker(ctx context.Context, sneaker domain.Sneaker) (*domain.Sneaker, error) {
 
 	if s.DB != nil {
 		//
@@ -46,7 +44,7 @@ func (s *Store) CreateSneaker(ctx context.Context, sneaker create.Sneaker) (*cre
 	return &sneaker, nil
 }
 
-func (s *Store) GetAllSneakers(ctx context.Context) ([]get.Sneaker, error) {
+func (s *Store) GetAllSneakers(ctx context.Context) ([]domain.Sneaker, error) {
 	//get values from db scan into store sneaker type
 	var sneakers []sneaker
 	if err := s.DB.Select(&sneakers, `SELECT * FROM sneakers`); err != nil {
@@ -54,7 +52,7 @@ func (s *Store) GetAllSneakers(ctx context.Context) ([]get.Sneaker, error) {
 	}
 
 	//convert and return array of model type
-	var converted []get.Sneaker
+	var converted []domain.Sneaker
 	for _, s := range sneakers {
 		converted = append(converted, s.ToSneaker())
 	}
@@ -74,7 +72,7 @@ func (s *Store) GetAllBrands(ctx context.Context) ([]string, error) {
 
 }
 
-func (s *Store) GetSneakersByBrand(ctx context.Context, brand string) ([]get.Sneaker, error) {
+func (s *Store) GetSneakersByBrand(ctx context.Context, brand string) ([]domain.Sneaker, error) {
 	//get values from db scan into store sneaker type
 	var sneakers []sneaker
 	if err := s.DB.Select(&sneakers, `SELECT * FROM sneakers WHERE brand=$1`, brand); err != nil {
@@ -82,7 +80,7 @@ func (s *Store) GetSneakersByBrand(ctx context.Context, brand string) ([]get.Sne
 	}
 
 	//convert and return array of model type
-	var converted []get.Sneaker
+	var converted []domain.Sneaker
 	for _, s := range sneakers {
 		converted = append(converted, s.ToSneaker())
 	}
@@ -91,28 +89,28 @@ func (s *Store) GetSneakersByBrand(ctx context.Context, brand string) ([]get.Sne
 
 }
 
-func (s *Store) GetSneakerBySKU(ctx context.Context, sku string) (get.Sneaker, error) {
+func (s *Store) GetSneakerBySKU(ctx context.Context, sku string) (domain.Sneaker, error) {
 	var sneaker sneaker
 
 	if err := s.DB.Get(&sneaker, `SELECT * FROM sneakers WHERE sku=$1`, sku); err != nil {
-		return get.Sneaker{}, err
+		return domain.Sneaker{}, err
 	}
 	return sneaker.ToSneaker(), nil
 }
 
-func (s *Store) GetSneakerByModel(ctx context.Context, model string) (get.Sneaker, error) {
+func (s *Store) GetSneakerByModel(ctx context.Context, model string) (domain.Sneaker, error) {
 	var sneaker sneaker
 
 	if err := s.DB.Get(&sneaker, `SELECT * FROM sneakers WHERE model=$1`, model); err != nil {
-		return get.Sneaker{}, err
+		return domain.Sneaker{}, err
 	}
 	return sneaker.ToSneaker(), nil
 }
 
-func (s sneaker) ToSneaker() get.Sneaker {
+func (s sneaker) ToSneaker() domain.Sneaker {
 
 	//convert values returned from db to site_sold_on type so it's methods can be used
-	return get.Sneaker{
+	return domain.Sneaker{
 		Brand: s.brand,
 		Model: s.model,
 		Sku:   s.sku,

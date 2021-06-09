@@ -1,4 +1,4 @@
-package create
+package domain
 
 type Sneaker struct {
 	Brand            string         `json:"brand,omitempty"`

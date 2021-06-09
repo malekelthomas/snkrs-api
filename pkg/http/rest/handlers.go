@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"snkrs/pkg/create"
+	"snkrs/pkg/domain"
 	"snkrs/pkg/get"
 
 	"github.com/gorilla/mux"
@@ -33,7 +34,7 @@ type createSneakerRequest struct {
 	Model         string               `json:"model"`
 	Sku           string               `json:"sku"`
 	Photos        []string             `json:"photos"`
-	SiteSizePrice create.SiteSizePrice `json:"site_size_price"`
+	SiteSizePrice domain.SiteSizePrice `json:"site_size_price"`
 	ReleaseDate   string               `json:"release_date"`
 }
 
@@ -65,11 +66,11 @@ func getAllSneakers(g get.Service) func(http.ResponseWriter, *http.Request) {
 func getAllBrands(g get.Service) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Println(r)
-		sneakers, err := g.GetAllBrands(context.TODO())
+		brands, err := g.GetAllBrands(context.TODO())
 		if err != nil {
 			json.NewEncoder(w).Encode("No brands found")
 		}
-		json.NewEncoder(w).Encode(sneakers)
+		json.NewEncoder(w).Encode(brands)
 	}
 }
 
