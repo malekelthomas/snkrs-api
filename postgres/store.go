@@ -2,9 +2,11 @@ package postgres
 
 import (
 	"errors"
+	"fmt"
 	"log"
 
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq" // driver
 )
 
 type Store struct {
@@ -20,6 +22,7 @@ func NewPostgresStore(conn string) (*Store, error) {
 		log.Println("unable to establish connection", err)
 		return nil, err
 	}
+	fmt.Println("established connection with postgres database")
 	return &Store{DB: db}, nil
 
 }
