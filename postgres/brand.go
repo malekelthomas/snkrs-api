@@ -21,10 +21,10 @@ func (s *Store) GetBrandByID(ctx context.Context, id int64) (string, error) {
 	return brand, nil
 }
 
-func (s *Store) GetBrandIDByName(ctx context.Context, name string) (string, error) {
-	var brand string
+func (s *Store) GetBrandIDByName(ctx context.Context, name string) (int64, error) {
+	var brand int64
 	if err := s.DB.Get(&brand, `SELECT id FROM brands WHERE name=$1`, name); err != nil {
-		return "", err
+		return 0, err
 	}
 	return brand, nil
 }
