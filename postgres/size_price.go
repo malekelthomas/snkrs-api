@@ -17,7 +17,7 @@ func (s *Store) StoreSiteSizePrice(ctx context.Context, tx *sql.Tx, sneakerID, i
 	}
 	for site := range info.SitesSizesPrices {
 		var siteID int64
-		if err := s.DB.Get(&siteID, `SELECT id FROM sites WHERE site=$1`, site); err != nil {
+		if err := s.DB.Get(&siteID, `SELECT id FROM sites WHERE name=$1`, site); err != nil {
 			return err
 		}
 		sizes_prices := info.SitesSizesPrices[site]
