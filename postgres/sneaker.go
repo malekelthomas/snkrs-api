@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"snkrs/pkg/domain"
+	"strings"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -17,7 +18,7 @@ type sneaker struct {
 func (s *Store) CreateSneaker(ctx context.Context, sneaker domain.Sneaker) (*domain.Sneaker, error) {
 
 	if s.DB != nil {
-		brandID, err := s.GetBrandIDByName(ctx, sneaker.Brand)
+		brandID, err := s.GetBrandIDByName(ctx, strings.ToLower(sneaker.Brand))
 		if err != nil {
 			return nil, err
 		}
@@ -33,7 +34,7 @@ func (s *Store) CreateSneaker(ctx context.Context, sneaker domain.Sneaker) (*dom
 
 		//add sneaker to 'catalog'
 		var sneakerID int64
-		if err := tx.QueryRow(`INSERT INTO sneakers (brand_id, model_name) VALUES ($1, $2)`, brandID, sneaker.Model).Scan(&sneakerID); err != nil {
+		if err := tx.QueryRow(`INSERT INTO sneakers (brand_id, model_name) VALUES ($1, $2) RETURNING id`, brandID, sneaker.Model).Scan(&sneakerID); err != nil {
 			return nil, err
 		}
 
