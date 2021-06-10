@@ -54,11 +54,18 @@ func main() {
 		checkoutService = services.NewCheckoutService(paymentProcessor)
 	}
 
+	//set generator for order numbers
 	noGenerator := sonyflake.NewSonyflake()
 	orderNoGenerator := generator.NewOrderNumberGenerator(noGenerator)
 	checkoutConversionService = conversion.NewCheckoutConversionService(orderNoGenerator)
 
-	router := rest.Handler(rest.Services{SneakerService: sneakerService, CheckoutService: checkoutService, CheckoutConversionService: checkoutConversionService})
+	//pass services to handlers
+	router := rest.Handler(rest.Services{
+		SneakerService:            sneakerService,
+		CheckoutService:           checkoutService,
+		CheckoutConversionService: checkoutConversionService,
+	})
+
 	fmt.Println("listening on port 7000")
 	log.Fatal(http.ListenAndServe(":7000", router))
 }
