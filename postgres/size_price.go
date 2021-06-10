@@ -34,46 +34,54 @@ func (s *Store) StoreSiteSizePrice(ctx context.Context, tx *sql.Tx, sneakerID, i
 }
 
 type siteSizePriceRow struct {
-	id         int64  `db:"id"`
-	site_id    int64  `db:"site_id"`
-	sneaker_id int64  `db:"sneaker_id"`
-	size       string `db:"size"`
-	price      int64  `db:"price"`
+	ID          int64  `db:"id"`
+	SiteID      int64  `db:"site_id"`
+	SneakerID   int64  `db:"sneaker_id"`
+	Size        string `db:"size"`
+	Price       int64  `db:"price"`
+	InventoryID int64  `db:"inventory_id"`
 }
 
 func (s *Store) GetSitesSizesPrices(ctx context.Context, sneakerID int64) (*domain.SiteSizePrice, error) {
-	var info *domain.SiteSizePrice
-	var rows []siteSizePriceRow
+	var siteSizePrice domain.SiteSizePrice
+	sitesSizesPrice := make(map[string]*domain.SizePrice)
+	siteSizePrice.SitesSizesPrices = sitesSizesPrice
 
 	//get all rows for this sneaker
-	if err := s.DB.Select(&rows, `SELECT * FROM site_size_price WHERE sneaker_id=$1`, sneakerID); err != nil {
+	rows, err := s.DB.Queryx(`SELECT * FROM site_size_price WHERE sneaker_id=$1`, sneakerID)
+	if err != nil {
 		return nil, err
 	}
 
 	//build out maps
-	for i := range rows {
-		row := rows[i]
+	for rows.Next() {
+		var row siteSizePriceRow
+		if err := rows.StructScan(&row); err != nil {
+			return nil, err
+		}
 
 		//get site name
 		var site string
-		if err := s.DB.Get(&site, `SELECT name FROM sites WHERE id=$1`, row.site_id); err != nil {
+		if err := s.DB.Get(&site, `SELECT name FROM sites WHERE id=$1`, row.SiteID); err != nil {
 			return nil, err
 		}
 		//initialize sizes and prices
-		var sizePrice *domain.SizePrice
+		var sizePrice domain.SizePrice
+		sizePriceMap := make(map[string]int64)
+		sizePrice.SizesPrices = sizePriceMap
 
 		//check if size_price map already exists for site
-		if val, ok := info.SitesSizesPrices[site]; !ok {
+		if val, ok := siteSizePrice.SitesSizesPrices[site]; !ok {
 			//if not set it
-			info.SitesSizesPrices[site] = sizePrice
+			siteSizePrice.SitesSizesPrices[site] = &sizePrice
 		} else if ok {
 			//if it does set pointer to map
-			sizePrice = val
+			sizePrice = *val
 		}
 		//add size price
-		sizePrice.SizesPrices[row.size] = row.price
+		sizePrice.SizesPrices[row.Size] = row.Price
 
 	}
 
-	return info, nil
+	return &siteSizePrice, nil
 }
