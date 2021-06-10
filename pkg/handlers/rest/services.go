@@ -1,11 +1,12 @@
 package rest
 
 import (
-	"snkrs/pkg/create"
-	"snkrs/pkg/get"
+	"snkrs/pkg/services"
+	"snkrs/pkg/services/conversion"
 )
 
 type Services struct {
-	Get           get.Service
-	CreateSneaker create.SneakerService
+	SneakerService            services.Sneaker
+	CheckoutConversionService conversion.CheckoutConversionService
+	CheckoutService           services.Checkout
 }

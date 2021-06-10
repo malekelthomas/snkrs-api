@@ -17,6 +17,16 @@ type SizePrice struct {
 	SizesPrices map[string]int64 `json:"sizes_prices,omitempty"`
 }
 
+//CreateSneakerRequest contains fields when receiving a request to create a sneaker
+type CreateSneakerRequest struct {
+	Brand         string        `json:"brand"`
+	Model         string        `json:"model"`
+	Sku           string        `json:"sku"`
+	Photos        []string      `json:"photos"`
+	SiteSizePrice SiteSizePrice `json:"site_size_price"`
+	ReleaseDate   string        `json:"release_date"`
+}
+
 type SiteSoldOn int32
 
 const (

@@ -5,10 +5,12 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"snkrs/mockpaymentprocessor"
 	"snkrs/mongo"
-	"snkrs/pkg/create"
-	"snkrs/pkg/get"
+	"snkrs/pkg/generator"
 	"snkrs/pkg/handlers/rest"
+	"snkrs/pkg/services"
+	"snkrs/pkg/services/conversion"
 	"snkrs/postgres"
 )
 
@@ -19,8 +21,9 @@ func main() {
 
 	//init services
 	var (
-		getService           get.Service
-		createSneakerService create.SneakerService
+		sneakerService            services.Sneaker
+		checkoutService           services.Checkout
+		checkoutConversionService conversion.CheckoutConversionService
 	)
 
 	switch storageType {
@@ -29,9 +32,9 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-
-		getService = get.NewService(s)
-		createSneakerService = create.NewSneakerService(s)
+		sneakerService = services.NewSneakerService(s)
+		paymentProcessor := mockpaymentprocessor.NewMockProcessor(s)
+		checkoutService = services.NewCheckoutService(paymentProcessor)
 	case "1":
 		dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 			os.Getenv("POSTGRES_HOST"),
@@ -45,12 +48,15 @@ func main() {
 			panic(err)
 		}
 
-		getService = get.NewService(s)
-		createSneakerService = create.NewSneakerService(s)
-
+		sneakerService = services.NewSneakerService(s)
+		paymentProcessor := mockpaymentprocessor.NewMockProcessor(s)
+		checkoutService = services.NewCheckoutService(paymentProcessor)
 	}
 
-	router := rest.Handler(rest.Services{Get: getService, CreateSneaker: createSneakerService})
+	orderNoGenerator := generator.NewOrderNumberGenerator()
+	checkoutConversionService = conversion.NewCheckoutConversionService(orderNoGenerator)
+
+	router := rest.Handler(rest.Services{SneakerService: sneakerService, CheckoutService: checkoutService, CheckoutConversionService: checkoutConversionService})
 	fmt.Println("listening on port 7000")
 	log.Fatal(http.ListenAndServe(":7000", router))
 }
