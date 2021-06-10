@@ -33,7 +33,14 @@ func main() {
 		getService = get.NewService(s)
 		createService = create.NewService(s)
 	case "1":
-		s, err := postgres.NewPostgresStore(os.Getenv("POSTGRES_CONN"))
+		dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+			os.Getenv("POSTGRES_HOST"),
+			os.Getenv("POSTGRES_PORT"),
+			os.Getenv("POSTGRES_USER"),
+			os.Getenv("POSTGRES_PASSWORD"),
+			os.Getenv("POSTGRES_DB"),
+		)
+		s, err := postgres.NewPostgresStore(dsn)
 		if err != nil {
 			panic(err)
 		}
