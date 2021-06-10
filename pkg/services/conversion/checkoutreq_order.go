@@ -33,5 +33,11 @@ func (c checkoutConversionService) ConvertCheckoutRequestToOrder(ctx context.Con
 	//set items
 	o.Items = req.Items
 
+	//set carrier
+	o.Carrier = req.Carrier
+
+	//set shipping method
+	o.ShippingMethod = req.ShippingMethod
+
 	return &o, nil
 }
