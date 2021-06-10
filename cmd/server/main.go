@@ -12,6 +12,7 @@ import (
 	"snkrs/pkg/services"
 	"snkrs/pkg/services/conversion"
 	"snkrs/postgres"
+	"snkrs/sonyflake"
 )
 
 func main() {
@@ -53,7 +54,8 @@ func main() {
 		checkoutService = services.NewCheckoutService(paymentProcessor)
 	}
 
-	orderNoGenerator := generator.NewOrderNumberGenerator()
+	noGenerator := sonyflake.NewSonyflake()
+	orderNoGenerator := generator.NewOrderNumberGenerator(noGenerator)
 	checkoutConversionService = conversion.NewCheckoutConversionService(orderNoGenerator)
 
 	router := rest.Handler(rest.Services{SneakerService: sneakerService, CheckoutService: checkoutService, CheckoutConversionService: checkoutConversionService})
