@@ -19,7 +19,7 @@ func executeCheckout(s services.Checkout, c conversion.CheckoutConversionService
 		if err != nil {
 			json.NewEncoder(w).Encode("invalid checkout request")
 		}
-		_, err = s.ProcessOrder(r.Context(), *order)
+		_, err = s.ProcessOrder(r.Context(), order)
 		if err != nil {
 			json.NewEncoder(w).Encode(fmt.Sprintf("could not process order err: %v", err))
 		}

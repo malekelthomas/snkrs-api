@@ -16,7 +16,7 @@ func NewMockProcessor(sr services.SneakerRepository) *MockProcessor {
 	}
 }
 
-func (m *MockProcessor) ProcessOrder(ctx context.Context, order domain.Order) (*domain.Order, error) {
+func (m *MockProcessor) ProcessOrder(ctx context.Context, order *domain.Order) (*domain.Order, error) {
 	var err error
 	order.Subtotal, err = m.CalculateSubtotal(ctx, order.Items)
 	if err != nil {
@@ -28,7 +28,7 @@ func (m *MockProcessor) ProcessOrder(ctx context.Context, order domain.Order) (*
 		return nil, err
 	}
 
-	return &order, nil
+	return order, nil
 }
 
 func (m *MockProcessor) CalculateSubtotal(ctx context.Context, items []domain.CheckoutItem) (int64, error) {
