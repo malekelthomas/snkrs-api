@@ -6,6 +6,6 @@ type Order struct {
 	Items          []CheckoutItem `json:"items"`
 	Subtotal       int64          `json:"subtotal"`
 	Total          int64          `json:"total"`
-	Carrier        `json:"carrier"`
+	Carrier        string         `json:"carrier"`
 	ShippingMethod `json:"shipping_method"`
 }

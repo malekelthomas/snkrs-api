@@ -13,5 +13,5 @@ type CheckoutRequest struct {
 	State          string         `json:"state"`
 	ShippingMethod ShippingMethod `json:"shipping_method"`
 	PaymentSource  string         `json:"payment_source"`
-	Carrier        `json:"carrier"`
+	Carrier        string         `json:"carrier"`
 }

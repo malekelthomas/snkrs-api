@@ -48,7 +48,7 @@ func (m *MockProcessor) CalculateSubtotal(ctx context.Context, items []domain.Ch
 	return subtotal, nil
 }
 
-func (m *MockProcessor) CalculateTotal(ctx context.Context, subtotal int64, carrier domain.Carrier, shippingMethod domain.ShippingMethod) (int64, error) {
+func (m *MockProcessor) CalculateTotal(ctx context.Context, subtotal int64, carrier string, shippingMethod domain.ShippingMethod) (int64, error) {
 	var total int64
 
 	//TODO: calculate total using carrier shipping method rates
