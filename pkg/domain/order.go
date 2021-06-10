@@ -7,5 +7,5 @@ type Order struct {
 	Subtotal       int64          `json:"subtotal"`
 	Total          int64          `json:"total"`
 	Carrier        `json:"carrier"`
-	ShippingMethod ShippingMethod `json:"shipping_method"`
+	ShippingMethod `json:"shipping_method"`
 }
