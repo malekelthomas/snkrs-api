@@ -2,19 +2,24 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"snkrs/pkg/domain"
 	"strings"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 )
 
 type sneaker struct {
-	id     int64          `db:"id"`
-	brand  int64          `db:"brand"`
-	model  string         `db:"model"`
-	photos pq.StringArray `db:"photos"`
+	ID          int64          `db:"id"`
+	Brand       int64          `db:"brand_id"`
+	Model       string         `db:"model_name"`
+	ReleaseDate *time.Time     `db:"release_date"`
+	Photos      pq.StringArray `db:"photos"`
 }
+
+var layout = "01/02/2006"
 
 func (s *Store) CreateSneaker(ctx context.Context, sneaker domain.Sneaker) (*domain.Sneaker, error) {
 
@@ -27,6 +32,17 @@ func (s *Store) CreateSneaker(ctx context.Context, sneaker domain.Sneaker) (*dom
 		if err != nil {
 			return nil, err
 		}
+
+		//check if release date provided
+		var releaseDate time.Time
+		if sneaker.ReleaseDate != "" {
+			releaseDate, err = time.Parse(layout, sneaker.ReleaseDate)
+			if err != nil {
+				return nil, err
+			}
+
+		}
+
 		//store sneaker in inventory
 		var inventoryID int64
 		if err := tx.QueryRow(`INSERT INTO sneaker_inventory (sku, model_name) VALUES ($1, $2) RETURNING id`, sneaker.Sku, sneaker.Model).Scan(&inventoryID); err != nil {
@@ -40,7 +56,7 @@ func (s *Store) CreateSneaker(ctx context.Context, sneaker domain.Sneaker) (*dom
 		photos = append(photos, sneaker.Photos...)
 
 		var sneakerID int64
-		if err := tx.QueryRow(`INSERT INTO sneakers (brand_id, model_name, photos) VALUES ($1, $2, $3) RETURNING id`, brandID, sneaker.Model, photos).Scan(&sneakerID); err != nil {
+		if err := tx.QueryRow(`INSERT INTO sneakers (brand_id, model_name, photos, release_date) VALUES ($1, $2, $3, $4) RETURNING id`, brandID, sneaker.Model, photos, releaseDate).Scan(&sneakerID); err != nil {
 			return nil, err
 		}
 
@@ -57,24 +73,30 @@ func (s *Store) CreateSneaker(ctx context.Context, sneaker domain.Sneaker) (*dom
 }
 
 func (s *Store) GetAllSneakers(ctx context.Context) ([]domain.Sneaker, error) {
-	//get values from db scan into store sneaker type
-	var sneakers []sneaker
-	if err := s.DB.Select(&sneakers, `SELECT * FROM sneakers`); err != nil {
+	var err error
+	rows, err := s.DB.Queryx(`SELECT * FROM sneakers`)
+	if err != nil {
 		return nil, err
 	}
 
 	//convert and return array of model type
 	var converted []domain.Sneaker
-	var err error
-	for _, sneaker := range sneakers {
+
+	for rows.Next() {
+		var sneaker sneaker
+		if err := rows.StructScan(&sneaker); err != nil {
+			return nil, err
+		}
 		convertedSneaker := sneaker.ToSneaker(s.DB)
-		convertedSneaker.SitesSizesPrices, err = s.GetSitesSizesPrices(ctx, sneaker.id)
+		if convertedSneaker == nil {
+			return nil, errors.New("unable to convert from table struct to model")
+		}
+		convertedSneaker.SitesSizesPrices, err = s.GetSitesSizesPrices(ctx, sneaker.ID)
 		if err != nil {
 			return nil, err
 		}
-		converted = append(converted, convertedSneaker)
+		converted = append(converted, *convertedSneaker)
 	}
-
 	return converted, nil
 
 }
@@ -91,11 +113,11 @@ func (s *Store) GetSneakersByBrandID(ctx context.Context, brandID int64) ([]doma
 	var err error
 	for _, sneaker := range sneakers {
 		convertedSneaker := sneaker.ToSneaker(s.DB)
-		convertedSneaker.SitesSizesPrices, err = s.GetSitesSizesPrices(ctx, sneaker.id)
+		convertedSneaker.SitesSizesPrices, err = s.GetSitesSizesPrices(ctx, sneaker.ID)
 		if err != nil {
 			return nil, err
 		}
-		converted = append(converted, convertedSneaker)
+		converted = append(converted, *convertedSneaker)
 	}
 
 	return converted, nil
@@ -119,11 +141,11 @@ func (s *Store) GetSneakersByBrand(ctx context.Context, brand string) ([]domain.
 	var converted []domain.Sneaker
 	for _, sneaker := range sneakers {
 		convertedSneaker := sneaker.ToSneaker(s.DB)
-		convertedSneaker.SitesSizesPrices, err = s.GetSitesSizesPrices(ctx, sneaker.id)
+		convertedSneaker.SitesSizesPrices, err = s.GetSitesSizesPrices(ctx, sneaker.ID)
 		if err != nil {
 			return nil, err
 		}
-		converted = append(converted, convertedSneaker)
+		converted = append(converted, *convertedSneaker)
 	}
 
 	return converted, nil
@@ -136,33 +158,36 @@ func (s *Store) GetSneakerBySKU(ctx context.Context, sku string) (domain.Sneaker
 	if err := s.DB.Get(&sneaker, `SELECT * FROM sneakers WHERE sku=$1`, sku); err != nil {
 		return domain.Sneaker{}, err
 	}
-	return sneaker.ToSneaker(s.DB), nil
+	return *sneaker.ToSneaker(s.DB), nil
 }
 
 func (s *Store) GetSneakerByModel(ctx context.Context, model string) (domain.Sneaker, error) {
 	var sneaker sneaker
 	var err error
-	if err := s.DB.Get(&sneaker, `SELECT * FROM sneakers WHERE model=$1`, model); err != nil {
+	if err := s.DB.Get(&sneaker, `SELECT * FROM sneakers WHERE model_name=$1`, model); err != nil {
 		return domain.Sneaker{}, err
 	}
 	convertedSneaker := sneaker.ToSneaker(s.DB)
-	convertedSneaker.SitesSizesPrices, err = s.GetSitesSizesPrices(ctx, sneaker.id)
+	convertedSneaker.SitesSizesPrices, err = s.GetSitesSizesPrices(ctx, sneaker.ID)
 	if err != nil {
 		return domain.Sneaker{}, err
 	}
 
-	return convertedSneaker, nil
+	return *convertedSneaker, nil
 }
 
-func (s sneaker) ToSneaker(db *sqlx.DB) domain.Sneaker {
+func (s sneaker) ToSneaker(db *sqlx.DB) *domain.Sneaker {
 
 	//convert values returned from db to site_sold_on type so it's methods can be used
 	var brand string
-	if err := db.Get(&brand, `SELECT name FROM brands WHERE id=$1`, s.brand); err != nil {
-		return domain.Sneaker{}
+	if err := db.Get(&brand, `SELECT name FROM brands WHERE id=$1`, s.Brand); err != nil {
+		return nil
 	}
-	return domain.Sneaker{
-		Brand: brand,
-		Model: s.model,
+
+	return &domain.Sneaker{
+		Brand:       brand,
+		Model:       s.Model,
+		Photos:      s.Photos,
+		ReleaseDate: s.ReleaseDate.Format(layout),
 	}
 }
