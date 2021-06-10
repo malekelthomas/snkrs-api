@@ -6,6 +6,6 @@ import (
 )
 
 type Services struct {
-	Get    get.Service
-	Create create.Service
+	Get           get.Service
+	CreateSneaker create.SneakerService
 }

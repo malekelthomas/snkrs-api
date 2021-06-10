@@ -19,7 +19,7 @@ func Handler(s Services) *mux.Router {
 
 	//register routes and handler funcs
 	r.HandleFunc("/sneakers/", getAllSneakers(s.Get)).Methods("GET")
-	r.HandleFunc("/sneakers/", createSneaker(s.Create)).Methods("POST")
+	r.HandleFunc("/sneakers/", createSneaker(s.CreateSneaker)).Methods("POST")
 	r.HandleFunc("/sneakers", getSneakerByModel(s.Get)).Methods("GET").Queries("model", "{model}")
 	r.HandleFunc("/sneakers/brands/{brand}/", getSneakersByBrand(s.Get)).Methods("GET")
 	r.HandleFunc("/sneakers/brands/", getAllBrands(s.Get)).Methods("GET")
@@ -38,7 +38,7 @@ type createSneakerRequest struct {
 	ReleaseDate   string               `json:"release_date"`
 }
 
-func createSneaker(c create.Service) func(http.ResponseWriter, *http.Request) {
+func createSneaker(c create.SneakerService) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req createSneakerRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {

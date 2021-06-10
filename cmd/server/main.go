@@ -19,8 +19,8 @@ func main() {
 
 	//init services
 	var (
-		getService    get.Service
-		createService create.Service
+		getService           get.Service
+		createSneakerService create.SneakerService
 	)
 
 	switch storageType {
@@ -31,7 +31,7 @@ func main() {
 		}
 
 		getService = get.NewService(s)
-		createService = create.NewService(s)
+		createSneakerService = create.NewSneakerService(s)
 	case "1":
 		dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 			os.Getenv("POSTGRES_HOST"),
@@ -46,11 +46,11 @@ func main() {
 		}
 
 		getService = get.NewService(s)
-		createService = create.NewService(s)
+		createSneakerService = create.NewSneakerService(s)
 
 	}
 
-	router := rest.Handler(rest.Services{Get: getService, Create: createService})
+	router := rest.Handler(rest.Services{Get: getService, CreateSneaker: createSneakerService})
 	fmt.Println("listening on port 7000")
 	log.Fatal(http.ListenAndServe(":7000", router))
 }
