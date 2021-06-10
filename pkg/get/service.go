@@ -33,6 +33,11 @@ type Repository interface {
 	GetAllBrands(ctx context.Context) ([]string, error)
 }
 
+type SQLRepository interface {
+	Repository
+	GetSneakersByBrandID(ctx context.Context, brandID int64) ([]domain.Sneaker, error)
+}
+
 type service struct {
 	r Repository
 }
