@@ -8,7 +8,7 @@ import (
 	"snkrs/mongo"
 	"snkrs/pkg/create"
 	"snkrs/pkg/get"
-	"snkrs/pkg/http/rest"
+	"snkrs/pkg/handlers/rest"
 	"snkrs/postgres"
 )
 
