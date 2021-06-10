@@ -51,9 +51,8 @@ func (s *Store) CreateSneaker(ctx context.Context, sneaker domain.Sneaker) (*dom
 
 		//add sneaker to 'catalog'
 		//convert string array to pq array
-		var photos pq.StringArray
 
-		photos = append(photos, sneaker.Photos...)
+		photos := pq.StringArray(sneaker.Photos)
 
 		var sneakerID int64
 		if err := tx.QueryRow(`INSERT INTO sneakers (brand_id, model_name, photos, release_date) VALUES ($1, $2, $3, $4) RETURNING id`, brandID, sneaker.Model, photos, releaseDate).Scan(&sneakerID); err != nil {
