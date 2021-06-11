@@ -49,7 +49,7 @@ func main() {
 				os.Getenv("LOCAL_POSTGRES_DB"),
 			)
 		case "1":
-			dsn = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable search_path=%s",
+			dsn = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 				os.Getenv("POSTGRES_HOST"),
 				os.Getenv("POSTGRES_PORT"),
 				os.Getenv("POSTGRES_USER"),
