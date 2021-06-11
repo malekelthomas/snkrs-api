@@ -21,7 +21,13 @@ func (s *Store) CreateOrder(ctx context.Context, order *domain.Order) (*domain.O
 
 	//get shipping method id
 	var shippingMethodID int64
-	if err := s.DB.Get(&shippingMethodID, `SELECT id FROM shipping_methods WHERE carrier_id=$1 AND method=$1`, carrierID, order.ShippingMethod); err != nil {
+	if err := s.DB.Get(&shippingMethodID, `SELECT id FROM shipping_methods WHERE name=$1`, order.ShippingMethod); err != nil {
+		return nil, err
+	}
+
+	//get carrier shipping method id
+	var carrierShippingMethodID int64
+	if err := s.DB.Get(&carrierShippingMethodID, `SELECT id FROM carrier_shipping_methods WHERE carrier_id=$1 AND shipping_method_id=$2`, carrierID, shippingMethodID); err != nil {
 		return nil, err
 	}
 
@@ -32,7 +38,7 @@ func (s *Store) CreateOrder(ctx context.Context, order *domain.Order) (*domain.O
 			user_id, 
 			subtotal, 
 			tax_rate_id, 
-			shipping_method_id, 
+			carrier_shipping_method_id, 
 			total
 		) 
 		VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
@@ -40,7 +46,7 @@ func (s *Store) CreateOrder(ctx context.Context, order *domain.Order) (*domain.O
 		order.UserID,
 		order.Subtotal,
 		taxRateID,
-		shippingMethodID,
+		carrierShippingMethodID,
 		order.Total).Scan(&orderID); err != nil {
 		return nil, err
 	}
