@@ -25,6 +25,7 @@ func main() {
 		sneakerService            services.Sneaker
 		checkoutService           services.Checkout
 		checkoutConversionService conversion.CheckoutConversionService
+		userService               services.User
 	)
 
 	switch storageType {
@@ -65,6 +66,7 @@ func main() {
 		sneakerService = services.NewSneakerService(s)
 		paymentProcessor := mockpaymentprocessor.NewMockProcessor(s, s)
 		checkoutService = services.NewCheckoutService(paymentProcessor)
+		userService = services.NewUserService(s)
 	}
 
 	//set generator for order numbers
@@ -77,6 +79,7 @@ func main() {
 		SneakerService:            sneakerService,
 		CheckoutService:           checkoutService,
 		CheckoutConversionService: checkoutConversionService,
+		UserService:               userService,
 	})
 
 	fmt.Println("listening on port 7000")

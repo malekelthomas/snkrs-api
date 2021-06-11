@@ -9,4 +9,5 @@ type Services struct {
 	SneakerService            services.Sneaker
 	CheckoutConversionService conversion.CheckoutConversionService
 	CheckoutService           services.Checkout
+	UserService               services.User
 }
