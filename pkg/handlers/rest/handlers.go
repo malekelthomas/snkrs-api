@@ -23,7 +23,7 @@ func Handler(s Services) *mux.Router {
 	r.HandleFunc("/checkout/execute/", executeCheckout(s.CheckoutService, s.CheckoutConversionService)).Methods("POST")
 
 	//USER ROUTES
-	r.HandleFunc("/register/", registerUser(s.UserService)).Methods("POST")
+	r.HandleFunc("/users/register/", registerUser(s.UserService)).Methods("POST")
 	http.Handle("/", r)
 
 	return r

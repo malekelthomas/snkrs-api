@@ -13,6 +13,8 @@ import (
 	"snkrs/pkg/services/conversion"
 	"snkrs/postgres"
 	"snkrs/sonyflake"
+
+	"github.com/gorilla/handlers"
 )
 
 func main() {
@@ -74,6 +76,16 @@ func main() {
 	orderNoGenerator := generator.NewOrderNumberGenerator(noGenerator)
 	checkoutConversionService = conversion.NewCheckoutConversionService(orderNoGenerator)
 
+	//configure cors
+	cors := handlers.CORS(
+		handlers.AllowedHeaders([]string{"*"}),
+		handlers.AllowedMethods([]string{"*"}),
+		handlers.AllowedOrigins([]string{
+			//local
+			"http://localhost:3000",
+		}),
+	)
+
 	//pass services to handlers
 	router := rest.Handler(rest.Services{
 		SneakerService:            sneakerService,
@@ -83,5 +95,5 @@ func main() {
 	})
 
 	fmt.Println("listening on port 7000")
-	log.Fatal(http.ListenAndServe(":7000", router))
+	log.Fatal(http.ListenAndServe(":7000", cors(router)))
 }
