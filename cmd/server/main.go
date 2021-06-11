@@ -34,23 +34,36 @@ func main() {
 			panic(err)
 		}
 		sneakerService = services.NewSneakerService(s)
-		paymentProcessor := mockpaymentprocessor.NewMockProcessor(s)
+		paymentProcessor := mockpaymentprocessor.NewMockProcessor(s, s)
 		checkoutService = services.NewCheckoutService(paymentProcessor)
 	case "1":
-		dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-			os.Getenv("POSTGRES_HOST"),
-			os.Getenv("POSTGRES_PORT"),
-			os.Getenv("POSTGRES_USER"),
-			os.Getenv("POSTGRES_PASSWORD"),
-			os.Getenv("POSTGRES_DB"),
-		)
+		host := os.Getenv("PG_HOST")
+		var dsn string
+		switch host {
+		case "0":
+			dsn = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+				os.Getenv("LOCAL_POSTGRES_HOST"),
+				os.Getenv("LOCAL_POSTGRES_PORT"),
+				os.Getenv("LOCAL_POSTGRES_USER"),
+				os.Getenv("LOCAL_POSTGRES_PASSWORD"),
+				os.Getenv("LOCAL_POSTGRES_DB"),
+			)
+		case "1":
+			dsn = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable search_path=%s",
+				os.Getenv("POSTGRES_HOST"),
+				os.Getenv("POSTGRES_PORT"),
+				os.Getenv("POSTGRES_USER"),
+				os.Getenv("POSTGRES_PASSWORD"),
+				os.Getenv("POSTGRES_DB"),
+			)
+		}
 		s, err := postgres.NewPostgresStore(dsn)
 		if err != nil {
 			panic(err)
 		}
 
 		sneakerService = services.NewSneakerService(s)
-		paymentProcessor := mockpaymentprocessor.NewMockProcessor(s)
+		paymentProcessor := mockpaymentprocessor.NewMockProcessor(s, s)
 		checkoutService = services.NewCheckoutService(paymentProcessor)
 	}
 
