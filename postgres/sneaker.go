@@ -90,10 +90,10 @@ func (s *Store) GetAllSneakers(ctx context.Context) ([]domain.Sneaker, error) {
 		if convertedSneaker == nil {
 			return nil, errors.New("unable to convert from table struct to model")
 		}
-		convertedSneaker.SitesSizesPrices, err = s.GetSitesSizesPrices(ctx, sneaker.ID)
+		/* convertedSneaker.SitesSizesPrices, err = s.GetSitesSizesPrices(ctx, sneaker.ID)
 		if err != nil {
 			return nil, err
-		}
+		} */
 		converted = append(converted, *convertedSneaker)
 	}
 	return converted, nil
@@ -109,13 +109,12 @@ func (s *Store) GetSneakersByBrandID(ctx context.Context, brandID int64) ([]doma
 
 	//convert and return array of model type
 	var converted []domain.Sneaker
-	var err error
 	for _, sneaker := range sneakers {
 		convertedSneaker := sneaker.ToSneaker(s.DB)
-		convertedSneaker.SitesSizesPrices, err = s.GetSitesSizesPrices(ctx, sneaker.ID)
+		/* convertedSneaker.SitesSizesPrices, err = s.GetSitesSizesPrices(ctx, sneaker.ID)
 		if err != nil {
 			return nil, err
-		}
+		} */
 		converted = append(converted, *convertedSneaker)
 	}
 
@@ -140,10 +139,10 @@ func (s *Store) GetSneakersByBrand(ctx context.Context, brand string) ([]domain.
 	var converted []domain.Sneaker
 	for _, sneaker := range sneakers {
 		convertedSneaker := sneaker.ToSneaker(s.DB)
-		convertedSneaker.SitesSizesPrices, err = s.GetSitesSizesPrices(ctx, sneaker.ID)
+		/* convertedSneaker.SitesSizesPrices, err = s.GetSitesSizesPrices(ctx, sneaker.ID)
 		if err != nil {
 			return nil, err
-		}
+		} */
 		converted = append(converted, *convertedSneaker)
 	}
 
