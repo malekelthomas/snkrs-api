@@ -9,7 +9,7 @@ import (
 	"snkrs/pkg/services/conversion"
 )
 
-func executeCheckout(s services.Checkout, c conversion.CheckoutConversionService) func(http.ResponseWriter, *http.Request) {
+func executeCheckout(ch services.Checkout, c conversion.CheckoutConversionService) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req domain.CheckoutRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -19,7 +19,7 @@ func executeCheckout(s services.Checkout, c conversion.CheckoutConversionService
 		if err != nil {
 			json.NewEncoder(w).Encode("invalid checkout request")
 		}
-		_, err = s.ProcessOrder(r.Context(), order)
+		_, err = ch.ProcessOrder(r.Context(), order)
 		if err != nil {
 			json.NewEncoder(w).Encode(fmt.Sprintf("could not process order err: %v", err))
 		}
