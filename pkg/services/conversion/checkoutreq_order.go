@@ -36,6 +36,9 @@ func (c checkoutConversionService) ConvertCheckoutRequestToOrder(ctx context.Con
 	//set carrier
 	o.Carrier = req.Carrier
 
+	//set state
+	o.State = req.State
+
 	//set shipping method
 	o.ShippingMethod = req.ShippingMethod
 

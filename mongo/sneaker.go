@@ -128,6 +128,15 @@ func (s *Store) GetAllBrands(ctx context.Context) ([]string, error) {
 	return brandsStr, nil
 }
 
+func (s *Store) CreateOrder(ctx context.Context, order *domain.Order) (*domain.Order, error) {
+	if inserted, err := upsert(ctx, s.getCollection("orders"), bson.D{{"order_no", order.OrderNo}}, order); err != nil {
+		return nil, err
+	} else if !inserted {
+		return nil, errors.New("order was not inserted")
+	}
+	return order, nil
+}
+
 func upsert(ctx context.Context, collection *mongo.Collection, filter bson.D, item interface{}) (bool, error) {
 	upsert := true
 	result, err := collection.ReplaceOne(ctx, filter, item, &options.ReplaceOptions{

@@ -8,4 +8,5 @@ type Order struct {
 	Total          int64          `json:"total"`
 	Carrier        string         `json:"carrier"`
 	ShippingMethod `json:"shipping_method"`
+	State          string `json:"state"`
 }

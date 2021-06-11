@@ -8,11 +8,13 @@ import (
 
 type MockProcessor struct {
 	sr services.SneakerRepository
+	o  services.OrderRepository
 }
 
-func NewMockProcessor(sr services.SneakerRepository) *MockProcessor {
+func NewMockProcessor(sr services.SneakerRepository, o services.OrderRepository) *MockProcessor {
 	return &MockProcessor{
 		sr: sr,
+		o:  o,
 	}
 }
 
@@ -28,7 +30,7 @@ func (m *MockProcessor) ProcessOrder(ctx context.Context, order *domain.Order) (
 		return nil, err
 	}
 
-	return order, nil
+	return m.o.CreateOrder(ctx, order)
 }
 
 func (m *MockProcessor) CalculateSubtotal(ctx context.Context, items []domain.CheckoutItem) (int64, error) {
