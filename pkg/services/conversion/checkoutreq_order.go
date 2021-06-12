@@ -40,7 +40,7 @@ func (c checkoutConversionService) ConvertCheckoutRequestToOrder(ctx context.Con
 	o.State = req.State
 
 	//set shipping method
-	o.ShippingMethod = req.ShippingMethod
+	o.ShippingMethod = domain.ShippingMethod(req.ShippingMethod)
 
 	return &o, nil
 }

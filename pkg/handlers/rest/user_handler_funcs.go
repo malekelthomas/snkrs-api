@@ -10,14 +10,14 @@ import (
 
 func registerUser(u services.User) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req domain.CreateUserRequest
+		var req domain.User
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			json.NewEncoder(w).Encode(fmt.Sprintf("Could not parse err: %v", err))
 		}
 		if req.AuthID == "" {
 			json.NewEncoder(w).Encode(fmt.Sprintf("invalid user: %v", req))
 		} else {
-			user, err := u.CreateUser(r.Context(), &req.User)
+			user, err := u.CreateUser(r.Context(), &req)
 			if err != nil {
 				json.NewEncoder(w).Encode(fmt.Sprintf("invalid user err: %v", err))
 			}

@@ -72,7 +72,7 @@ func (s *Store) CreateOrder(ctx context.Context, order *domain.Order) (*domain.O
 		if err != nil {
 			return nil, err
 		}
-		sneakerInventoryID, err := s.GetSneakerInventoryIDBySneakerID(ctx, sneakerID)
+		sneakerInventoryID, err := s.GetSneakerInventoryIDByModel(ctx, item.Model)
 		if err != nil {
 			return nil, err
 		}

@@ -182,6 +182,13 @@ func (s *Store) GetSneakerIDByModel(ctx context.Context, model string) (int64, e
 	return sneaker.ID, nil
 }
 
+func (s *Store) GetSneakerInventoryIDByModel(ctx context.Context, model string) (int64, error) {
+	var sneaker sneaker
+	if err := s.DB.Get(&sneaker, `SELECT id FROM sneaker_inventory WHERE model_name=$1`, model); err != nil {
+		return 0, err
+	}
+	return sneaker.ID, nil
+}
 func (s *Store) GetSneakerInventoryIDBySneakerID(ctx context.Context, sneakerID int64) (int64, error) {
 	var sneaker sneaker
 	if err := s.DB.Get(&sneaker, `SELECT id FROM sneaker_inventory WHERE sneaker_id=$1`, sneakerID); err != nil {
