@@ -85,7 +85,7 @@ func main() {
 			//local
 			"http://localhost:3000",
 			//vercel
-			"https://snkrs-fe-prod.vercel.app/",
+			"https://snkrz-fe-prod.vercel.app/",
 		}),
 	)
 
