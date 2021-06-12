@@ -31,6 +31,12 @@ func (s *Store) CreateOrder(ctx context.Context, order *domain.Order) (*domain.O
 		return nil, err
 	}
 
+	//get UserID
+	var userID int64
+	if err := s.DB.Get(&userID, `SELECT id FROM users WHERE auth_id=$1`, order.AuthID); err != nil {
+		return nil, err
+	}
+
 	var orderID int64
 	//store order
 	if err := s.DB.QueryRow(`INSERT INTO orders (
@@ -39,15 +45,18 @@ func (s *Store) CreateOrder(ctx context.Context, order *domain.Order) (*domain.O
 			subtotal, 
 			tax_rate_id, 
 			carrier_shipping_method_id, 
-			total
+			total,
+			auth_id
 		) 
-		VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+		VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
 		order.OrderNo,
-		order.UserID,
+		userID,
 		order.Subtotal,
 		taxRateID,
 		carrierShippingMethodID,
-		order.Total).Scan(&orderID); err != nil {
+		order.Total,
+		order.AuthID,
+	).Scan(&orderID); err != nil {
 		return nil, err
 	}
 	//store order's items

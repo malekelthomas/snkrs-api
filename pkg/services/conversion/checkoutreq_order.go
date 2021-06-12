@@ -22,8 +22,8 @@ func NewCheckoutConversionService(o generator.OrderNumberGenerator) CheckoutConv
 
 func (c checkoutConversionService) ConvertCheckoutRequestToOrder(ctx context.Context, req domain.CheckoutRequest) (*domain.Order, error) {
 	var o domain.Order
-	//set userID
-	o.UserID = req.UserID
+	//set authID
+	o.AuthID = req.AuthID
 	//create orderNO
 	var err error
 	o.OrderNo, err = c.o.New()

@@ -8,7 +8,7 @@ type CheckoutItem struct {
 }
 
 type CheckoutRequest struct {
-	UserID         int64          `json:"user_id"`
+	AuthID         string         `json:"auth_id"`
 	Items          []CheckoutItem `json:"items"`
 	State          string         `json:"state"`
 	ShippingMethod ShippingMethod `json:"shipping_method"`
