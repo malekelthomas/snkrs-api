@@ -43,12 +43,6 @@ func (s *Store) CreateSneaker(ctx context.Context, sneaker domain.Sneaker) (*dom
 
 		}
 
-		//store sneaker in inventory
-		var inventoryID int64
-		if err := tx.QueryRow(`INSERT INTO sneaker_inventory (sku, model_name) VALUES ($1, $2) RETURNING id`, sneaker.Sku, sneaker.Model).Scan(&inventoryID); err != nil {
-			return nil, err
-		}
-
 		//add sneaker to 'catalog'
 		//convert string array to pq array
 
@@ -56,6 +50,12 @@ func (s *Store) CreateSneaker(ctx context.Context, sneaker domain.Sneaker) (*dom
 
 		var sneakerID int64
 		if err := tx.QueryRow(`INSERT INTO sneakers (brand_id, model_name, photos, release_date) VALUES ($1, $2, $3, $4) RETURNING id`, brandID, sneaker.Model, photos, releaseDate).Scan(&sneakerID); err != nil {
+			return nil, err
+		}
+
+		//store sneaker in inventory
+		var inventoryID int64
+		if err := tx.QueryRow(`INSERT INTO sneaker_inventory (sku, model_name, sneaker_id) VALUES ($1, $2, $3) RETURNING id`, sneaker.Sku, sneaker.Model, sneakerID).Scan(&inventoryID); err != nil {
 			return nil, err
 		}
 
@@ -77,7 +77,11 @@ func (s *Store) GetAllSneakers(ctx context.Context) ([]domain.Sneaker, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	defer func() {
+		if dberr := rows.Close(); err != nil {
+			err = dberr
+		}
+	}()
 	//convert and return array of model type
 	var converted []domain.Sneaker
 

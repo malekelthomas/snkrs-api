@@ -17,6 +17,7 @@ func NewPostgresStore(conn string) (*Store, error) {
 	if conn == "" {
 		return nil, errors.New("no connection string provided")
 	}
+	log.Println("attempting to establish connection with db")
 	db, err := sqlx.Connect("postgres", conn)
 	if err != nil {
 		log.Println("unable to establish connection", err)

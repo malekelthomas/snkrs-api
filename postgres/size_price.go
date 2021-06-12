@@ -42,7 +42,7 @@ type siteSizePriceRow struct {
 	InventoryID int64  `db:"inventory_id"`
 }
 
-func (s *Store) GetSitesSizesPrices(ctx context.Context, sneakerID int64) (*domain.SiteSizePrice, error) {
+func (s *Store) GetSitesSizesPrices(ctx context.Context, sneakerID int64) (d *domain.SiteSizePrice, err error) {
 	var siteSizePrice domain.SiteSizePrice
 	sitesSizesPrice := make(map[string]*domain.SizePrice)
 	siteSizePrice.SitesSizesPrices = sitesSizesPrice
@@ -53,6 +53,11 @@ func (s *Store) GetSitesSizesPrices(ctx context.Context, sneakerID int64) (*doma
 		return nil, err
 	}
 
+	defer func() {
+		if dberr := rows.Close(); err != nil {
+			err = dberr
+		}
+	}()
 	//build out maps
 	for rows.Next() {
 		var row siteSizePriceRow
