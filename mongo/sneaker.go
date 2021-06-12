@@ -137,6 +137,95 @@ func (s *Store) CreateOrder(ctx context.Context, order *domain.Order) (*domain.O
 	return order, nil
 }
 
+func (s *Store) GetAllSneakersWPagination(ctx context.Context, limit, offset int64) ([]domain.Sneaker, error) {
+
+	var sneakers []domain.Sneaker
+	pipeline := bson.A{
+		bson.D{{"$skip", offset}},
+		bson.D{{"$limit", limit}},
+	}
+
+	cur, err := s.getCollection("sneakers").Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+
+	defer cur.Close(ctx)
+
+	for cur.Next(ctx) {
+		var s domain.Sneaker
+		err := cur.Decode(&s)
+		if err != nil {
+			return nil, err
+		}
+
+		sneakers = append(sneakers, s)
+
+	}
+
+	if err := cur.Err(); err != nil {
+		return nil, err
+	}
+
+	return sneakers, nil
+}
+
+func (s *Store) GetSneakersByBrandWPagination(ctx context.Context, brand string, limit, offset int64) ([]domain.Sneaker, error) {
+
+	var sneakers []domain.Sneaker
+	pipeline := bson.A{
+		bson.D{{"$match",
+			bson.D{{"brand", brand}},
+		}},
+		bson.D{{"$skip", offset}},
+		bson.D{{"$limit", limit}},
+	}
+
+	cur, err := s.getCollection("sneakers").Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+
+	defer cur.Close(ctx)
+
+	for cur.Next(ctx) {
+		var s domain.Sneaker
+		err := cur.Decode(&s)
+		if err != nil {
+			return nil, err
+		}
+
+		sneakers = append(sneakers, s)
+
+	}
+
+	if err := cur.Err(); err != nil {
+		return nil, err
+	}
+
+	return sneakers, nil
+}
+
+func (s *Store) GetSneakerCount(ctx context.Context) (int64, error) {
+
+	count, err := s.getCollection("sneakers").CountDocuments(ctx, bson.D{{}})
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
+func (s *Store) GetSneakerCountByBrand(ctx context.Context, brand string) (int64, error) {
+
+	count, err := s.getCollection("sneakers").CountDocuments(ctx, bson.D{{"brand", brand}})
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
 func upsert(ctx context.Context, collection *mongo.Collection, filter bson.D, item interface{}) (bool, error) {
 	upsert := true
 	result, err := collection.ReplaceOne(ctx, filter, item, &options.ReplaceOptions{

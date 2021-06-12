@@ -104,6 +104,39 @@ func (s *Store) GetAllSneakers(ctx context.Context) ([]domain.Sneaker, error) {
 
 }
 
+func (s *Store) GetAllSneakersWPagination(ctx context.Context, limit, offset int64) ([]domain.Sneaker, error) {
+	var err error
+	rows, err := s.DB.Queryx(`SELECT * FROM sneakers ORDER BY RANDOM() LIMIT $1 OFFSET $2`, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		if dberr := rows.Close(); err != nil {
+			err = dberr
+		}
+	}()
+	//convert and return array of model type
+	var converted []domain.Sneaker
+
+	for rows.Next() {
+		var sneaker sneaker
+		if err := rows.StructScan(&sneaker); err != nil {
+			return nil, err
+		}
+		convertedSneaker := sneaker.ToSneaker(s.DB)
+		if convertedSneaker == nil {
+			return nil, errors.New("unable to convert from table struct to model")
+		}
+		/* convertedSneaker.SitesSizesPrices, err = s.GetSitesSizesPrices(ctx, sneaker.ID)
+		if err != nil {
+			return nil, err
+		} */
+		converted = append(converted, *convertedSneaker)
+	}
+	return converted, nil
+
+}
+
 func (s *Store) GetSneakersByBrandID(ctx context.Context, brandID int64) ([]domain.Sneaker, error) {
 	//get values from db scan into store sneaker type
 	var sneakers []sneaker
@@ -126,6 +159,31 @@ func (s *Store) GetSneakersByBrandID(ctx context.Context, brandID int64) ([]doma
 
 }
 
+func (s *Store) GetSneakerCount(ctx context.Context) (int64, error) {
+	var count int64
+
+	if err := s.DB.Get(&count, `SELECT count(*) FROM sneakers`); err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
+func (s *Store) GetSneakerCountByBrand(ctx context.Context, brand string) (int64, error) {
+	var count int64
+
+	brandID, err := s.GetBrandIDByName(ctx, brand)
+	if err != nil {
+		return 0, err
+	}
+
+	if err := s.DB.Get(&count, `SELECT count(*) FROM sneakers WHERE brand_id = $1`, brandID); err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
 func (s *Store) GetSneakersByBrand(ctx context.Context, brand string) ([]domain.Sneaker, error) {
 	//get values from db scan into store sneaker type
 	var sneakers []sneaker
@@ -136,6 +194,33 @@ func (s *Store) GetSneakersByBrand(ctx context.Context, brand string) ([]domain.
 		return nil, err
 	}
 	if err := s.DB.Select(&sneakers, `SELECT * FROM sneakers WHERE brand_id=$1`, brandID); err != nil {
+		return nil, err
+	}
+
+	//convert and return array of model type
+	var converted []domain.Sneaker
+	for _, sneaker := range sneakers {
+		convertedSneaker := sneaker.ToSneaker(s.DB)
+		/* convertedSneaker.SitesSizesPrices, err = s.GetSitesSizesPrices(ctx, sneaker.ID)
+		if err != nil {
+			return nil, err
+		} */
+		converted = append(converted, *convertedSneaker)
+	}
+
+	return converted, nil
+
+}
+func (s *Store) GetSneakersByBrandWPagination(ctx context.Context, brand string, limit, offset int64) ([]domain.Sneaker, error) {
+	//get values from db scan into store sneaker type
+	var sneakers []sneaker
+	var err error
+
+	brandID, err := s.GetBrandIDByName(ctx, brand)
+	if err != nil {
+		return nil, err
+	}
+	if err := s.DB.Select(&sneakers, `SELECT * FROM sneakers WHERE brand_id=$1 LIMIT $2 OFFSET $3`, brandID, limit, offset); err != nil {
 		return nil, err
 	}
 

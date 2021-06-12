@@ -14,9 +14,13 @@ func Handler(s Services) *mux.Router {
 
 	//SNEAKER ROUTES
 	r.HandleFunc("/sneakers/", getAllSneakers(s.SneakerService)).Methods("GET")
+	r.HandleFunc("/sneakers/{page}", getAllSneakersWPagination(s.SneakerService)).Methods("GET")
+	r.HandleFunc("/sneakers/retrieve/count", getSneakerCount(s.SneakerService)).Methods("GET")
 	r.HandleFunc("/sneakers/", createSneaker(s.SneakerService)).Methods("POST")
 	r.HandleFunc("/sneakers", getSneakerByModel(s.SneakerService)).Methods("GET").Queries("model", "{model}")
 	r.HandleFunc("/sneakers/brands/{brand}/", getSneakersByBrand(s.SneakerService)).Methods("GET")
+	r.HandleFunc("/sneakers/brands/{brand}/{page}", getSneakersByBrandWPagination(s.SneakerService)).Methods("GET")
+	r.HandleFunc("/sneakers/brands/{brand}/retrieve/count", getSneakerCountByBrand(s.SneakerService)).Methods("GET")
 	r.HandleFunc("/sneakers/brands/", getAllBrands(s.SneakerService)).Methods("GET")
 
 	//CHECKOUT ROUTES

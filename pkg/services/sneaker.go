@@ -15,10 +15,18 @@ type Sneaker interface {
 	GetSneakerByModel(ctx context.Context, model string) (domain.Sneaker, error)
 	//GetSneakerByBrand returns sneakers with given brand
 	GetSneakersByBrand(ctx context.Context, brand string) ([]domain.Sneaker, error)
+	//GetSneakerByBrandWPagination returns sneakers with given brand paginated
+	GetSneakersByBrandWPagination(ctx context.Context, brand string, limit, offset int64) ([]domain.Sneaker, error)
 	//GetAllSneakers returns all sneakers
 	GetAllSneakers(ctx context.Context) ([]domain.Sneaker, error)
+	//GetAllSneakersWPagination returns all sneakers paginated
+	GetAllSneakersWPagination(ctx context.Context, limit, offset int64) ([]domain.Sneaker, error)
 	//GetBrands returns all brands
 	GetAllBrands(ctx context.Context) ([]string, error)
+	//GetSneakerCount returns number of sneakers
+	GetSneakerCount(ctx context.Context) (int64, error)
+	//GetSneakerCount returns number of sneakers for a brand
+	GetSneakerCountByBrand(ctx context.Context, brand string) (int64, error)
 }
 
 //Repository provides sneaker creation operations with a particular db
@@ -31,10 +39,18 @@ type SneakerRepository interface {
 	GetSneakerByModel(ctx context.Context, model string) (domain.Sneaker, error)
 	//GetSneakerByBrand returns sneakers with given brand
 	GetSneakersByBrand(ctx context.Context, brand string) ([]domain.Sneaker, error)
+	//GetSneakerByBrandWPagination returns sneakers with given brand paginated
+	GetSneakersByBrandWPagination(ctx context.Context, brand string, limit, offset int64) ([]domain.Sneaker, error)
 	//GetAllSneakers returns all sneakers
 	GetAllSneakers(ctx context.Context) ([]domain.Sneaker, error)
+	//GetAllSneakersWPagination returns all sneakers paginated
+	GetAllSneakersWPagination(ctx context.Context, limit, offset int64) ([]domain.Sneaker, error)
 	//GetBrands returns all brands
 	GetAllBrands(ctx context.Context) ([]string, error)
+	//GetSneakerCount returns number of sneakers
+	GetSneakerCount(ctx context.Context) (int64, error)
+	//GetSneakerCount returns number of sneakers for a brand
+	GetSneakerCountByBrand(ctx context.Context, brand string) (int64, error)
 }
 
 type sneakerservice struct {
@@ -70,9 +86,26 @@ func (s sneakerservice) GetSneakersByBrand(ctx context.Context, brand string) ([
 	return s.r.GetSneakersByBrand(ctx, brand)
 }
 
+//GetSneakerByBrandWPagination returns sneakers with given brand paginated
+func (s sneakerservice) GetSneakersByBrandWPagination(ctx context.Context, brand string, limit, offset int64) ([]domain.Sneaker, error) {
+	return s.r.GetSneakersByBrandWPagination(ctx, brand, limit, offset)
+}
+
 func (s sneakerservice) GetAllSneakers(ctx context.Context) ([]domain.Sneaker, error) {
 	return s.r.GetAllSneakers(ctx)
 }
+
+func (s sneakerservice) GetAllSneakersWPagination(ctx context.Context, limit, offset int64) ([]domain.Sneaker, error) {
+	return s.r.GetAllSneakersWPagination(ctx, limit, offset)
+}
 func (s sneakerservice) GetAllBrands(ctx context.Context) ([]string, error) {
 	return s.r.GetAllBrands(ctx)
+}
+
+func (s sneakerservice) GetSneakerCount(ctx context.Context) (int64, error) {
+	return s.r.GetSneakerCount(ctx)
+}
+
+func (s sneakerservice) GetSneakerCountByBrand(ctx context.Context, brand string) (int64, error) {
+	return s.r.GetSneakerCountByBrand(ctx, brand)
 }
