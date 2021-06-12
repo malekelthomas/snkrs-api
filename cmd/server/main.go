@@ -62,6 +62,7 @@ func main() {
 		}
 		s, err := postgres.NewPostgresStore(dsn)
 		if err != nil {
+			log.Println(err)
 			panic(err)
 		}
 
