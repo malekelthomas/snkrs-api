@@ -94,6 +94,6 @@ func main() {
 		UserService:               userService,
 	})
 
-	fmt.Println("listening on port 7000")
-	log.Fatal(http.ListenAndServe(":7000", cors(router)))
+	fmt.Println("listening on port", os.Getenv("PORT"))
+	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), cors(router)))
 }
