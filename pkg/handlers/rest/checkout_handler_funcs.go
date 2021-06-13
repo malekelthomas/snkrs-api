@@ -3,6 +3,7 @@ package rest
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"snkrs/pkg/domain"
 	"snkrs/pkg/services"
@@ -11,6 +12,7 @@ import (
 
 func executeCheckout(ch services.Checkout, c conversion.CheckoutConversionService) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		log.Println(r.URL)
 		var req domain.CheckoutRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			json.NewEncoder(w).Encode(fmt.Sprintf("Could not parse err: %v", err))
